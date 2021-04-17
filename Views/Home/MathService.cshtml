@@ -1,4 +1,4 @@
-@model System.String;
+@model MathServiceViewModel;
 @using Microsoft.Extensions.Hosting;
 @inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment _env;
 
@@ -10,33 +10,35 @@
 <hr>
 <h3 class="text-left">Addition Service</h3>
 <p>
-Enter a comma-delimited list of numbers to submit a request to a simple math service that returns the sum of said numbers.
+    Enter a comma-delimited list of numbers to submit a request to a simple math service that returns the sum of said
+    numbers.
 </p>
 <div className="row justify-content-center mb-2">
     <div className="col-lg-6">
 
-        <div id="alert-danger" class="alert alert-danger" role="alert" style="display:none"></div>
-        <div id="alert-success" class="alert alert-success" role="alert" style="display:none"></div>
-
-        <div class="input-group mb-3">
-            <input id="addition-input" autofocus type="text" class="form-control"
-                placeholder="Enter a comma-delimited list of numbers"
-                aria-label="Enter a comma-delimited list of numbers">
-            <div class="input-group-append">
-                <button id="submit-button" class="btn btn-outline-secondary btn-primary" type="button">Sum it up!</button>
+        @if (!String.IsNullOrEmpty(Model.Error))
+        {
+            <div id="alert-danger" class="alert alert-danger" role="alert">
+                The following error was encountered: @Model.Error
             </div>
-        </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.Success))
+        {
+            <div id="alert-success" class="alert alert-success" role="alert" >
+                @Model.Success
+            </div>
+        }
+
+        <form asp-controller="Home" asp-action="MathServiceSubmit" method="post">
+            <div class="input-group mb-3">
+                <input name="additionInput" id="addition-input" autofocus type="text" class="form-control"
+                    placeholder="Enter a comma-delimited list of numbers"
+                    aria-label="Enter a comma-delimited list of numbers">
+                <div class="input-group-append">
+                    <input type="submit" id="submit-button" class="btn btn-outline-secondary btn-primary"
+                        value="Sum it up!" />
+                </div>
+            </div>
+        </form>
     </div>
 </div>
-<script>
-    (function(window){
-
-        // bootstrap the service url to the page so we can pick it up
-        // later in our scripts for ajax calls to the math service
-        window.mathServiceUrl = "@Model";
-    })(window);
-</script>
-
-@section Scripts{
-<script src="/js/math-svc.js"></script>
-}

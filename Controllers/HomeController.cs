@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using AmirKouretchianWeb.Models;
+using AmirKouretchianWeb.Services;
 
 namespace AmirKouretchianWeb.Controllers
 {
@@ -14,11 +16,13 @@ namespace AmirKouretchianWeb.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IConfiguration _config;
+        private MathService _service;
 
-        public HomeController(ILogger<HomeController> logger, IConfiguration config)
+        public HomeController(ILogger<HomeController> logger, IConfiguration config, MathService mathSvc)
         {
             _logger = logger;
             _config = config;
+            _service = mathSvc;
         }
 
         public IActionResult Index()
@@ -33,11 +37,38 @@ namespace AmirKouretchianWeb.Controllers
 
         public IActionResult MathService()
         {
-            string mathServiceUrl = _config.GetValue<string>("MathServiceUrl");
-            if(String.IsNullOrEmpty(mathServiceUrl))
-                throw new Exception("This page require a service URL that is missing - please contact the page administrator for assistance");
+            MathServiceViewModel viewModel = new MathServiceViewModel();
+            string error = (string)this.TempData["error"];
+            if (!String.IsNullOrEmpty(error))
+                viewModel.Error = error;
 
-            return View(model: mathServiceUrl);
+            string success = (string)this.TempData["success"];
+            if (!string.IsNullOrEmpty(success))
+                viewModel.Success = success;
+
+            return View(model: viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> MathServiceSubmit(string additionInput)
+        {
+            string mathServiceUrl = _config.GetValue<string>("MathServiceUrl");
+            string apiKey = _config.GetValue<string>("ApiKey");
+
+            if (String.IsNullOrEmpty(additionInput))
+                this.TempData["error"] = "Please enter a comma-delimited list of numbers to add up";
+            else
+            {
+                HttpResponseMessage response = await _service.GetSum(additionInput);
+                string responseBody = await response.Content.ReadAsStringAsync();
+                if(response.IsSuccessStatusCode){
+                    this.TempData["success"] = "Sum of " + additionInput + " is: " + responseBody;
+                }else{
+                    this.TempData["error"] = response.ReasonPhrase + " " + responseBody;
+                }
+            }
+
+            return RedirectToAction("MathService");
         }
 
         public IActionResult Privacy()
