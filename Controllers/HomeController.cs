@@ -33,11 +33,36 @@ namespace AmirKouretchianWeb.Controllers
 
         public IActionResult MathService()
         {
-            string mathServiceUrl = _config.GetValue<string>("MathServiceUrl");
-            if(String.IsNullOrEmpty(mathServiceUrl))
-                throw new Exception("This page require a service URL that is missing - please contact the page administrator for assistance");
+            MathServiceViewModel viewModel = new MathServiceViewModel();
+            string error = (string)this.TempData["error"];
+            if (!String.IsNullOrEmpty(error))
+                viewModel.Error = error;
 
-            return View(model: mathServiceUrl);
+            string success = (string)this.TempData["success"];
+            if (!string.IsNullOrEmpty(success))
+                viewModel.Success = success;
+
+            return View(model: viewModel);
+        }
+
+        [HttpPost]
+        public IActionResult MathServiceSubmit(string additionInput)
+        {
+            string mathServiceUrl = _config.GetValue<string>("MathServiceUrl");
+            string apiKey = _config.GetValue<string>("ApiKey");
+
+            if (String.IsNullOrEmpty(additionInput))
+                this.TempData["error"] = "Please enter a comma-delimited list of numbers to add up";
+            else if (String.IsNullOrEmpty(mathServiceUrl))
+                this.TempData["error"] = "This page require a service URL that is missing - please contact the page administrator for assistance";
+            else if (String.IsNullOrEmpty(apiKey))
+                this.TempData["error"] = "This page requires an API key to communicate with the math service - please contact a web admin to assist you";
+            else
+            {
+                this.TempData["success"] = "TODO";
+            }
+
+            return RedirectToAction("MathService");
         }
 
         public IActionResult Privacy()
