@@ -15,30 +15,26 @@
 </p>
 <div className="row justify-content-center mb-2">
     <div className="col-lg-6">
+        <div id="alert-danger" class="alert alert-danger" role="alert" style="display:none;">
+            The following error was encountered: @Model.Error
+        </div>
 
-        @if (!String.IsNullOrEmpty(Model.Error))
-        {
-            <div id="alert-danger" class="alert alert-danger" role="alert">
-                The following error was encountered: @Model.Error
-            </div>
-        }
-        @if (!String.IsNullOrEmpty(Model.Success))
-        {
-            <div id="alert-success" class="alert alert-success" role="alert" >
-                @Model.Success
-            </div>
-        }
+        <div id="alert-success" class="alert alert-success" role="alert" style="display:none;">
+            @Model.Success
+        </div>
 
-        <form asp-controller="Home" asp-action="MathServiceSubmit" method="post">
-            <div class="input-group mb-3">
-                <input name="additionInput" id="addition-input" autofocus type="text" class="form-control"
-                    placeholder="Enter a comma-delimited list of numbers"
-                    aria-label="Enter a comma-delimited list of numbers">
-                <div class="input-group-append">
-                    <input type="submit" id="submit-button" class="btn btn-outline-secondary btn-primary"
-                        value="Sum it up!" />
-                </div>
+        <div class="input-group mb-3">
+            <input name="additionInput" id="addition-input" autofocus type="text" class="form-control"
+                placeholder="Enter a comma-delimited list of numbers"
+                aria-label="Enter a comma-delimited list of numbers">
+            <div class="input-group-append">
+                <button id="submit-button" class="btn btn-outline-secondary btn-primary">Sum it up!</button>
             </div>
-        </form>
+        </div>
+
     </div>
 </div>
+
+@section Scripts {
+    <script type="text/javascript" src="/js/math-service/index.js" ></script>
+}
