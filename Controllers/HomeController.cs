@@ -50,25 +50,45 @@ namespace AmirKouretchianWeb.Controllers
         }
 
         [HttpPost]
+        [Produces("application/json")]
         public async Task<IActionResult> MathServiceSubmit(string additionInput)
         {
             string mathServiceUrl = _config.GetValue<string>("MathServiceUrl");
             string apiKey = _config.GetValue<string>("ApiKey");
+            int status = 200;
+            string message;
 
             if (String.IsNullOrEmpty(additionInput))
-                this.TempData["error"] = "Please enter a comma-delimited list of numbers to add up";
+            {
+                message = "Please enter a comma-delimited list of numbers to add up";
+                status = 400;
+            }
             else
             {
-                HttpResponseMessage response = await _service.GetSum(additionInput);
-                string responseBody = await response.Content.ReadAsStringAsync();
-                if(response.IsSuccessStatusCode){
-                    this.TempData["success"] = "Sum of " + additionInput + " is: " + responseBody;
-                }else{
-                    this.TempData["error"] = response.ReasonPhrase + " " + responseBody;
+                try
+                {
+                    HttpResponseMessage response = await _service.GetSum(additionInput);
+                    string responseBody = await response.Content.ReadAsStringAsync();
+                    if (response.IsSuccessStatusCode)
+                    {
+                        message = "Sum of " + additionInput + " is: " + responseBody;
+                    }
+                    else
+                    {
+                        message = response.ReasonPhrase + " " + responseBody;
+                        status = 500;
+                    }
+                }
+                catch (Exception e)
+                {
+                    message = e.Message;
+                    status = 500;
                 }
             }
 
-            return RedirectToAction("MathService");
+            JsonResult result = this.Json(message);
+            result.StatusCode = status;
+            return result;
         }
 
         public IActionResult Privacy()
