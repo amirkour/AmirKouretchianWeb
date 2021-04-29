@@ -261,9 +261,10 @@
 
             // after some (arbitrary) amount of notifications, the state
             // machine is gonna give up
-            }else if(this.numPolls >= 5){
+            }else if(this.numPolls >= 7){
                 loading(false);
                 stateMachine.setState(new DoneState());
+                showDanger("The math service failed to respond ... it's probably just taking a long time to wake up, give it another try!")
 
                 return false; // TODO - set state to an error of some kind ... this is catastrophic
                               // TODO - need to reject the ajax call at this point
